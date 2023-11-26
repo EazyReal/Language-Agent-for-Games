@@ -1,6 +1,7 @@
 import os
 import openai
 import time
+import re
 
 
 def write_to_file(directory, filename, content):
@@ -12,10 +13,12 @@ def write_to_file(directory, filename, content):
         file.write(content + '\n')
 
 
-def extract_enclosed_text(text, start_tag, end_tag):
-    start = text.find(start_tag)
-    end = text.find(end_tag)
-    return text[start + len(start_tag):end].strip()
+def extract_enclosed_text(text, start_marker, end_marker):
+    pattern = re.escape(start_marker) + "(.*?)" + re.escape(end_marker)
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        return match.group(1)
+    return ""
 
 
 def lm(prompt, gpt_model, max_tokens, log_path, file_language_model):
@@ -46,6 +49,6 @@ def lm(prompt, gpt_model, max_tokens, log_path, file_language_model):
         except openai.APIError:
             cnt += 1
             if cnt > 3:
-                return 'APIError. Tried 3 times. Skip this one.'
+                raise Exception(f"APIError. Tried 3 times. Skip this one.")
         except Exception as e:
             raise Exception(f"An unexpected error occurred: {e}")
