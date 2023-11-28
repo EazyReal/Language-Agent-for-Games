@@ -109,7 +109,7 @@ class PrisonersDilemmaEnv(AECEnv):
         return string
 
     def observe(self, agent):
-        return np.array(self.observations[agent])
+        return self.observations[agent]
 
     def close(self):
         pass
