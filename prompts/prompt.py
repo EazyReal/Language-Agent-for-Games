@@ -56,8 +56,8 @@ you can replace the starter code with your own code and add more methods if need
 but you should not change the method signatures:
 <starter>
 
-Now, write the Agent class to interact with the environment and maximize your reward. 
+Now, given the starter code, you should write a new Agent class to interact with the environment and maximize your reward. 
 For each method, you should write comments to describe the method.
 For the act() method, you should return the action you want to take and write comments to explain why it is a good action.
-Your should only write the Agent class, and the code should be enclosed by ```python and ```.
+For the code part, you should enclose it by ```python and ``` and only write the Agent clase, all import need to be under the Agent scopr.
 '''.strip()

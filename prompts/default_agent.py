@@ -3,8 +3,9 @@ default_starter = \
 # This is the starting point of your agent class, you should not change the existing method signatures.
 # However, you can add more methods or change the implementations to obtain a better strategy.
 class Agent:
+    # import the necessary packages here
     import random
-    # You can initialize the agent's state here
+    # initialize the agent's state here
     def __init__(self, env, name):
         self.env = env
         self.name = name
@@ -13,7 +14,7 @@ class Agent:
             "actions": []
         }
 
-    # You can reset the agent's state here
+    # reset the agent's state here
     def reset(self):
         \"""
         Reset the agent's state.
@@ -23,13 +24,14 @@ class Agent:
             "actions": []
         }
     
-    # You can update the agent's state
+    # update the agent's state here
     # This is an example of storing the observation.
     def observe(self, observation, reward, termination, truncation, info):
         self.history["observations"].append(observation)
     
-    # You should return the action you want to take and write a docstring to explain why it is a good action.
-    # This is an example of choosing the action randomly.
+    # return the action here
+    # write comments to explain why this is a good policy.
+    # this is an example of choosing the action randomly, you may want to change it.
     # self.env.action_space is a method, not a subscriptable object.
     def act(self):
         action = self.env.action_space(self.name).sample()
