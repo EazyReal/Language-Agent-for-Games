@@ -2,8 +2,8 @@ import numpy as np
 from typing import Optional
 
 class RandomAgent:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, env, name):
+        pass
 
     def reset(self):
         pass

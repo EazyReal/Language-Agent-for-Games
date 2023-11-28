@@ -25,13 +25,9 @@ class DirectPromptAgentFactory(AgentFactory):
         # response = lm(prompt_get_agent_class, lm_config)
         # define_agent_code = extract_enclosed_text(response, "```python", "```")
         define_agent_code = prompts.default_agent.dummy_agent_code
-        exec("""
-class Agent(IAgent):
-    pass
-A = Agent
-print(A)""")
-        print(A)
-        return A
+        ldict = {}
+        exec(define_agent_code, globals(), ldict)
+        return ldict["Agent"]
 
     def update(self, reflection_information) -> None:
         return None
