@@ -10,5 +10,5 @@ class IAgent(Protocol):
     def observe(self, observation, reward, termination, truncation, info):
         ...
 
-    def act(self):
+    def act(self) -> any:
         ...

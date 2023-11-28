@@ -26,11 +26,10 @@ rps_v2.env(max_cycles=15)
 `max_cycles`:  after max_cycles steps all agents will return done.
 
 ### Observation Space
-
-#### Rock, Paper, Scissors
-
-If 3 actions are required, the game played is the standard Rock, Paper, Scissors. The observation is the last opponent action and its space is a scalar value with 4 possible values. Since both players reveal their choices at the same time, the observation is None until both players have acted.
+The observation is the last opponent action.
+Since both players reveal their choices at the same time, the observation is None until both players have acted.
 Therefore, 3 represents no action taken yet. Rock is represented with 0, paper with 1 and scissors with 2.
+The observatoin type is a ndarray of shape (1,) and dtype int. The type is unhashable and you should not call set() on a list of ndarray elements.
 
 | Value  |  Observation |
 | :----: | :---------:  |
@@ -41,8 +40,6 @@ Therefore, 3 represents no action taken yet. Rock is represented with 0, paper w
 
 
 ### Action Space
-
-#### Rock, Paper, Scissors
 
 The action space is a scalar value with 3 possible values. The values are encoded as follows: Rock is 0, paper is 1 and scissors is 2.
 

@@ -2,7 +2,7 @@ import numpy as np
 from typing import Optional
 
 class RandomAgent:
-    def __init__(self, name):
+    def __init__(self, env, name):
         self.name = name
 
     def reset(self):
@@ -15,54 +15,55 @@ class RandomAgent:
         return np.random.choice([0, 1])
 
 class AlwaysCooperateAgent:
-    def __init__(self, name):
+    def __init__(self, env, name):
         self.name = name
 
     def reset(self):
         pass
 
-    def observe(self, observation, reward, done, info):
+    def observe(self, observation, reward, termination, truncation, info):
         pass
 
     def act(self) -> int:
         return 0  # Cooperate
 
 class AlwaysBetrayAgent:
-    def __init__(self, name):
+    def __init__(self, env, name):
         self.name = name
 
     def reset(self):
         pass
 
-    def observe(self, observation, reward, done, info):
+    def observe(self, observation, reward, termination, truncation, info):
         pass
 
     def act(self) -> int:
         return 1  # Betray
 
 class CopyLastActionAgent:
-    def __init__(self, name):
+    def __init__(self, env, name):
         self.name = name
         self.last_action = None
 
     def reset(self):
         self.last_action = None
 
-    def observe(self, observation, reward, done, info):
+    def observe(self, observation, reward, termination, truncation, info):
         pass
 
     def act(self) -> Optional[int]:
         return self.last_action
 
 class CopyMajorityActionAgent:
-    def __init__(self, name):
+    def __init__(self, env, name):
+        self.env = env
         self.name = name
         self.actions_history = []
 
     def reset(self):
         self.actions_history = []
 
-    def observe(self, observation, reward, done, info):
+    def observe(self, observation, reward, termination, truncation, info):
         if observation is not None:
             self.actions_history.append(observation)
 

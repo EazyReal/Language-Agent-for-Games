@@ -6,7 +6,8 @@ from pathlib import Path
 
 @dataclass
 class EnvConfig:
-    prompt_get_agent_class: str
+    prompt_get_initial_agent: str
+    prompt_get_reflection_agent: str
     get_environment: Callable[..., AECEnv]
     baselines: Dict[str, type]
 
