@@ -64,12 +64,12 @@ def main():
     for _ in range(1):
         policy = {}
         agent_factory: AgentFactory = DirectPromptAgentFactory(policy=policy)
-        import rps
-        env = rps.env(max_cycles=5, render_mode="human")
-        Agent = agent_factory.produce_agent_class(rps.env_config, lm_config)
+        import tictactoe
+        env = tictactoe.env(render_mode="human")
+        Agent = agent_factory.produce_agent_class(tictactoe.env_config, lm_config)
         agents = {}
         for i, name in enumerate(env.possible_agents):
-            agents[name] = Agent(env, name) if i == 0 else rps.baselines.RandomAgent(env, name)
+            agents[name] = Agent(env, name) if i == 0 else tictactoe.baselines.BlockingAgent(env, name)
         rewards = simulate(agents, env)
         print(rewards)
     # get_refinement_prompt = f"given the execution result: {info}"

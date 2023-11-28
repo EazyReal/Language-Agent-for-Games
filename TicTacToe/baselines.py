@@ -13,7 +13,7 @@ def display_board(board):
 
 
 class BlockingAgent:
-    def __init__(self):
+    def __init__(self, env, name):
         self.observation_space = None
         self.action_space = None
         self.current_observation = None
@@ -75,7 +75,7 @@ class BlockingAgent:
 
 
 class RandomAgent:
-    def __init__(self):
+    def __init__(self, env, name):
         self.action_space = list(range(9))  # Possible actions from 0 to 8
         self.current_observation = None
 
@@ -231,10 +231,10 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
     env.close()
     return rewards
 
-# Initialize environment and agents
-env = tictactoe_v3.env(render_mode="human")
-agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent()}
+# # Initialize environment and agents
+# env = tictactoe_v3.env(render_mode="human")
+# agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent()}
 
-# Simulate the game
-rewards = simulate(agents, env)
-print("Final Rewards:", rewards)
+# # Simulate the game
+# rewards = simulate(agents, env)
+# print("Final Rewards:", rewards)
