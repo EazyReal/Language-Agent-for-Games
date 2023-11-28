@@ -3,6 +3,8 @@ from utils import write_to_file
 from pathlib import Path
 from agent_factory import AgentFactory, DirectPromptAgentFactory, ReflectionAgentFactory
 from configs import *
+from typing import ModuleType
+from agent import IAgent
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -60,20 +62,16 @@ lm_config = LMConfig(
     log_file=Path('lm_log.txt'),
 )
 
-def main():
-    for _ in range(1):
-        policy = {}
-        agent_factory: AgentFactory = DirectPromptAgentFactory(policy=policy)
-        import rps
-        env = rps.env(max_cycles=5, render_mode="human")
-        Agent = agent_factory.produce_agent_class(rps.env_config, lm_config)
-        agents = {}
-        for i, name in enumerate(env.possible_agents):
-            agents[name] = Agent(env, name) if i == 0 else rps.baselines.RandomAgent(env, name)
-        rewards = simulate(agents, env)
-        print(rewards)
-    # get_refinement_prompt = f"given the execution result: {info}"
-    # refinement_response = 
-    # (get_refinement_prompt)
+def main(env_config: EnvConfig, baseline: IAgent):
+    policy = {}
+    agent_factory: AgentFactory = DirectPromptAgentFactory(policy=policy)
+    env = env_config.get_environment()
+    Agent = agent_factory.produce_agent_class(env_config, lm_config)
+    agents = {}
+    for i, name in enumerate(env.possible_agents):
+        agents[name] = Agent(env, name) if i == 0 else baseline(env, name)
+    rewards = simulate(agents, env)
+    return rewards
 
-main()
+import rps
+main(rps.env_config, baseline=rps.baselines.RandomAgent)
