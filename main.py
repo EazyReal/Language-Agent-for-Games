@@ -9,22 +9,13 @@ load_dotenv()
 from simulation import run_experiment
 from agent_factory import AgentFactory, DirectPromptAgentFactory, ReflectionAgentFactory, DummyAgentFactory
 from configs import EnvConfig, LMConfig
-import prisoners_dilemma
 from stats import get_stats
 
 # in case agent uses the libraries
 import numpy as np
 import random
 
-def main(get_agent_factories, log_path_root):
-    env_config = prisoners_dilemma.env_config
-    lm_config = LMConfig(
-        gpt_model = 'gpt-3.5-turbo',
-        max_tokens=1400,
-        log_path=log_path_root,
-        log_file=Path('lm_log.txt'),
-    )
-
+def main(env_config, lm_config, get_agent_factories, log_path_root):
     # This will collect all results from the experiments
     all_experiment_results = []
 
@@ -63,25 +54,16 @@ def main(get_agent_factories, log_path_root):
 def get_dummy_agent_factories() -> Dict[str, Callable[..., AgentFactory]]:
     class Agent:
         def __init__(self, env, name):
-            self.env = env
-            self.name = name
-            self.actions_history = []
+            pass
 
         def reset(self):
-            self.actions_history = []
+            pass
 
         def observe(self, observation, reward, termination, truncation, info):
-            if observation is not None:
-                self.actions_history.append(observation)
+            pass
 
         def act(self):
-            if len(self.actions_history) == 0:
-                return np.random.choice([0, 1])  # Random choice for the first round
-
-            cooperate_count = np.sum(np.array(self.actions_history) == 0)
-            betray_count = np.sum(np.array(self.actions_history) == 1)
-
-            return 0 if cooperate_count >= betray_count else 1  # Cooperate if ties
+            return 0
         
     return {
         "dummy": lambda: DummyAgentFactory(Agent),
@@ -92,6 +74,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run experiments with different agent factories.')
     parser.add_argument('--log_root', type=str, help='Root directory for logs')
     parser.add_argument('--test', action='store_true', help='Run a dummy AgentFacotry experiment')
+    parser.add_argument('--game', type=str, help='Game Selector')
     args = parser.parse_args()
 
     if args.test:
@@ -105,6 +88,23 @@ if __name__ == "__main__":
             "direct": direct_agent_factory,
             "reflection": reflection_agent_factory,
     }
+        
+    if args.game == 'prisoners_dilemma':
+        import prisoners_dilemma
+        env_config = prisoners_dilemma.env_config
+    elif args.game == 'tictactoe':
+        import tictactoe
+        env_config = tictactoe.env_config
+    elif args.game == 'rps':
+        import rps
+        env_config = rps.env_config
 
-    all_experiment_results = main(get_agent_factories, Path(args.log_root))
+    lm_config = LMConfig(
+        gpt_model = 'gpt-3.5-turbo',
+        max_tokens=1400,
+        log_path=args.log_root,
+        log_file=Path('lm_log.txt'),
+    )
+
+    all_experiment_results = main(env_config, lm_config, get_agent_factories, Path(args.log_root))
     get_stats(all_experiment_results, log_file=Path(args.log_root) / Path("stats.json"))
