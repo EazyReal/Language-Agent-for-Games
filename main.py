@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     lm_config = LMConfig(
         gpt_model = 'gpt-3.5-turbo',
-        max_tokens=1400,
+        max_tokens=2800,
         log_path=args.log_root,
         log_file=Path('lm_log.txt'),
     )
