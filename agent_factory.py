@@ -24,7 +24,7 @@ class DirectPromptAgentFactory(AgentFactory):
         prompt_get_agent_class = self.apply_prompt_policy(env_config.prompt_get_agent_class)
         response = lm(prompt_get_agent_class, lm_config)
         define_agent_code = extract_enclosed_text(response, "```python", "```")
-        define_agent_code = prompts.default_agent.dummy_agent_code
+        # define_agent_code = prompts.default_agent.dummy_agent_code
         ldict = {}
         exec(define_agent_code, globals(), ldict)
         return ldict["Agent"]
