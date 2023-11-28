@@ -59,5 +59,5 @@ but you should not change the method signatures:
 Now, write the Agent class to interact with the environment and maximize your reward. 
 For each method, you should write comments to describe the method.
 For the act() method, you should return the action you want to take and write comments to explain why it is a good action.
-Your code should be enclosed by ```python and ```.
+Your should only write the Agent class, and the code should be enclosed by ```python and ```.
 '''.strip()

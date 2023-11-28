@@ -2,7 +2,7 @@ import os
 import openai
 import time
 import re
-
+from configs import LMConfig
 
 def write_to_file(directory, filename, content):
     if not os.path.exists(directory):
@@ -13,7 +13,7 @@ def write_to_file(directory, filename, content):
         file.write(content + '\n')
 
 
-def extract_enclosed_text(text, start_marker, end_marker):
+def extract_enclosed_text(text: str, start_marker: str, end_marker: str) -> str:
     pattern = re.escape(start_marker) + "(.*?)" + re.escape(end_marker)
     match = re.search(pattern, text, re.DOTALL)
     if match:
@@ -21,7 +21,7 @@ def extract_enclosed_text(text, start_marker, end_marker):
     return ""
 
 
-def lm(prompt, gpt_model, max_tokens, log_path, file_language_model):
+def lm(prompt: str, config: LMConfig) -> str:
     prompt_chat = [
         {"role": "user", "content": prompt.strip()},
     ]
@@ -30,16 +30,16 @@ def lm(prompt, gpt_model, max_tokens, log_path, file_language_model):
         try:
             client = openai.OpenAI()
             completion = client.chat.completions.create(
-                model=gpt_model,
+                model=config.gpt_model,
                 messages=prompt_chat,
                 temperature=0,
-                max_tokens=max_tokens,
+                max_tokens=config.max_tokens,
                 top_p=1,  # consider all top 100% tokens
                 frequency_penalty=0.0,
                 presence_penalty=0.0,
             )
             answer = completion.choices[0].message.content.strip()
-            write_to_file(log_path, file_language_model, 'Prompt: \n' + prompt +
+            write_to_file(config.log_path, config.log_file, 'Prompt: \n' + prompt +
                           '\nResponse: \n' + answer + '\n' + '='*20 + '\n')
             return answer
         except openai.RateLimitError as e:
