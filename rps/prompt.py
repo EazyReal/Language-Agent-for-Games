@@ -1,6 +1,6 @@
 from prompts.default_agent import default_starter
 
-rps_info = '''
+info = '''
 # Rock Paper Scissors
 | Import             | `from pettingzoo.classic import rps_v2` |
 |--------------------|-----------------------------------------|
@@ -61,4 +61,4 @@ The action space is a scalar value with 3 possible values. The values are encode
 If the game ends in a draw, both players will receive a reward of 0.
 '''.strip()
 
-rps_starter = default_starter.replace('game_name_v0', 'rps_v2')
+starter = default_starter.replace('game_name_v0', 'rps_v2')

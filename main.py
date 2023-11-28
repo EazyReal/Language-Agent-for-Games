@@ -9,8 +9,25 @@ from agent import IAgent
 from dotenv import load_dotenv
 load_dotenv()
 
-def simulate(agents: any, env: AECEnv) -> dict[any, float]:
+import rps, prisoners_dilemma
+
+env_config = rps.env_config
+
+lm_config = LMConfig(
+    gpt_model = 'gpt-3.5-turbo',
+    max_tokens=1400,
+    log_path=Path('./log/'),
+    log_file=Path('lm_log.txt'),
+)
+
+get_agent_factories: Dict[str, Callable[..., AgentFactory]] = {
+    "direct": lambda : DirectPromptAgentFactory({}),
+   # "reflection": lambda: ReflectionAgentFactory({}),
+}
+
+def simulate(agents: any, env: AECEnv, agent_name: str) -> dict[any, float]:
     env.reset()
+    game_history = f"Your agent is named {agent_name}.\n"
     rewards = {agent: 0 for agent in env.possible_agents}
     
     for agent in agents.values():
@@ -19,59 +36,60 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
     for agent_name in env.agent_iter():
         observation, reward, termination, truncation, info = env.last()
         rewards[agent_name] += reward
-        obs_message = agents[agent_name].observe(
+        agents[agent_name].observe(
             observation, reward, termination, truncation, info
         )
         if termination or truncation:
             action = None
         else:
             action = agents[agent_name].act()
-        print(f"Agen {agent_name} Action {action}")
+        game_history += f"{agent_name} takes action {action}\n"
         env.step(action)
     env.close()
-    return rewards
+    return rewards, game_history
 
-# def math_all(r):
-#     reflection_information = []
-#     for i in range(r):
-#         simulate()
-#     return reflection_information 
+@dataclass
+class Result:
+    agent_factory: str
+    baseline: str
+    go_first: int
+    id_trial: int
+    id_iter: int
+    define_agent_code: str
+    rewards: dict[str, float]
+    game_history: str
 
-# def get_baselines():
-#     return []
+experiment_results = []
 
-# def run_1_experiment(type_agent_factory: AgentFactory, improvement_rounds=5):
-#     agent_factory = type_agent_factory()
-#     agent = agent_factory.produce_agent()
-#     agents = get_baselines()
-#     for i in range(improvement_rounds):
-#         reflection_information = math_all(agent, agents)
-#         agent_factory.update(reflection_information)
-#     return stats
+# for each agent factory, run 3*2 experiments against all other baselines, each with 2 rounds of iteration that allows the agent factory to improve
+for agent_factory_name, get_agent_factory in get_agent_factories.items():
+    for baseline_name, baseline_class in env_config.baselines.items():
+        for go_first in range(2):
+            for id_trial in range(3):
+                agent_factory = get_agent_factory()
+                for id_iter in range(2):
+                    Agent, define_agent_code = agent_factory.produce_agent_class(env_config, lm_config)
+                    env = env_config.get_environment()
+                    agents = {}
+                    for i, name in enumerate(env.possible_agents):
+                        if i == go_first:
+                            agent_name = name
+                            agents[name] = Agent(env, name)
+                        else:
+                            agents[name] = baseline_class(env, name)
+                    rewards, game_history = simulate(agents, env, agent_name)
+                    agent_factory.update(game_history)
+                    experiment_results.append(
+                        Result(
+                            agent_factory=agent_factory_name,
+                            baseline=baseline_name,
+                            go_first=go_first,
+                            id_trial=id_trial,
+                            id_iter=id_iter,
+                            define_agent_code=define_agent_code,
+                            rewards=rewards,
+                            game_history=game_history
+                        )
+                    )
 
-# def main():
-#     T = 1
-#     for i in range(T):
-#         stats = run_1_experiment()
-
-# 'gpt-3.5-turbo'
-lm_config = LMConfig(
-    gpt_model = 'gpt-3.5-turbo',
-    max_tokens=1400,
-    log_path=Path('./log/cot_v2/'),
-    log_file=Path('lm_log.txt'),
-)
-
-def main(env_config: EnvConfig, baseline: IAgent):
-    policy = {}
-    agent_factory: AgentFactory = DirectPromptAgentFactory(policy=policy)
-    env = env_config.get_environment()
-    Agent = agent_factory.produce_agent_class(env_config, lm_config)
-    agents = {}
-    for i, name in enumerate(env.possible_agents):
-        agents[name] = Agent(env, name) if i == 0 else baseline(env, name)
-    rewards = simulate(agents, env)
-    return rewards
-
-import rps
-main(rps.env_config, baseline=rps.baselines.RandomAgent)
+# save experiment results

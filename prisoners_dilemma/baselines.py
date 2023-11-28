@@ -74,16 +74,3 @@ class CopyMajorityActionAgent:
         betray_count = np.sum(np.array(self.actions_history) == 1)
 
         return 0 if cooperate_count >= betray_count else 1  # Cooperate if ties
-
-# Example usage:
-
-agents = {
-    "random_agent": RandomAgent("random_agent"),
-    "always_cooperate_agent": AlwaysCooperateAgent("always_cooperate_agent"),
-    "always_betray_agent": AlwaysBetrayAgent("always_betray_agent"),
-    "copy_last_action_agent": CopyLastActionAgent("copy_last_action_agent"),
-    "copy_majority_action_agent": CopyMajorityActionAgent("copy_majority_action_agent"),
-}
-
-# Simulate
-simulate(agents, env)

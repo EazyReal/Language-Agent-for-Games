@@ -1,5 +1,5 @@
 # from abc import ABCMeta, abstractmethod
-from typing import Union, Literal, Callable
+from typing import Union, Literal, Callable, Dict
 from pettingzoo import AECEnv
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,6 +8,7 @@ from pathlib import Path
 class EnvConfig:
     prompt_get_agent_class: str
     get_environment: Callable[..., AECEnv]
+    baselines: Dict[str, type]
 
 @dataclass
 class LMConfig:

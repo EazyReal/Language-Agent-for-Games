@@ -1,9 +1,9 @@
 from configs import EnvConfig
-from prompts.prompt import get_solution_prompt, simulation_code
+from prompts.base import get_solution_prompt, simulation_code
 from tictactoe.prompt import tictactoe_starter, tictactoe_info
 from pettingzoo.classic.tictactoe.tictactoe import env
 from pettingzoo import AECEnv
-import tictactoe.baselines
+from . import baselines, prompt
 
 prompt_get_agent_class = get_solution_prompt\
         .replace("<simulation code>", simulation_code)\
