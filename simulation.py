@@ -32,7 +32,7 @@ def simulate(agents: Dict[str, IAgent], env: AECEnv, agent_name: str) -> dict[an
     env.close()
     return rewards, game_history
 
-def run_experiment(
+def run_experiment_inner(
         agent_factory_name: str,
         get_agent_factory: Callable[..., AgentFactory],
         baseline_name: str,
@@ -65,13 +65,24 @@ def run_experiment(
                 "id_trial": id_trial,
                 "id_iter": id_iter,
                 "define_agent_code": define_agent_code,
+                "agent_name": agent_name,
                 "rewards": rewards,
-                "game_history": game_history
             }
         )
     if log_path is not None:
         log_path.mkdir(parents=True, exist_ok=True)
         file_path = Path(log_path / f"{agent_factory_name}_{baseline_name}_{go_first}_{id_trial}.json")
+        # file_path_lite = Path(log_path / f"{agent_factory_name}_{baseline_name}_{go_first}_{id_trial}_lite.json")
         with open(file_path, "w+") as fo:
             fo.write(json.dumps(experiment_results))
+        # with open(file_path_lite, "w+") as fo:
+        #     fo.write(json.dumps(experiment_results_lite))
     return experiment_results
+
+def run_experiment(*args, **kwargs):
+    try:
+        return run_experiment_inner(*args, **kwargs)
+    except Exception as e:
+        # Log the exception or handle it as needed
+        print(f"Error in experiment: {e}")
+        return []
