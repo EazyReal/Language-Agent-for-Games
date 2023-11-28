@@ -95,103 +95,103 @@ class RandomAgent:
         return None  # In case no legal moves are available
 
 
-class MinMaxAgent:
-    def __init__(self):
-        self.observation_space = None
-        self.action_space = None
-        self.current_observation = None
+# class MinMaxAgent:
+#     def __init__(self):
+#         self.observation_space = None
+#         self.action_space = None
+#         self.current_observation = None
 
-    def reset(self):
-        self.current_observation = None
+#     def reset(self):
+#         self.current_observation = None
 
-    def observe(self, observation, reward, termination, truncation, info):
-        self.current_observation = observation
-        obs_message = f"Observation: {observation}"
-        return obs_message
+#     def observe(self, observation, reward, termination, truncation, info):
+#         self.current_observation = observation
+#         obs_message = f"Observation: {observation}"
+#         return obs_message
 
-    def minimax(self, board, action_mask, depth, alpha, beta, is_maximizing):
-        if self.is_game_over(board):
-            return self.evaluate_board(board), None
+#     def minimax(self, board, action_mask, depth, alpha, beta, is_maximizing):
+#         if self.is_game_over(board):
+#             return self.evaluate_board(board), None
 
-        if is_maximizing:
-            max_eval = float('-inf')
-            best_action = None
-            for action in range(9):
-                if action_mask[action]:
-                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, True)
-                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, alpha, beta, False)
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_action = action
-                    alpha = max(alpha, eval)
-                    if beta <= alpha:
-                        break
-            return max_eval, best_action
-        else:
-            min_eval = float('inf')
-            best_action = None
-            for action in range(9):
-                if action_mask[action]:
-                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, False)
-                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, alpha, beta, True)
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_action = action
-                    beta = min(beta, eval)
-                    if beta <= alpha:
-                        break
-            return min_eval, best_action
+#         if is_maximizing:
+#             max_eval = float('-inf')
+#             best_action = None
+#             for action in range(9):
+#                 if action_mask[action]:
+#                     new_board, new_action_mask = self.simulate_move(board, action_mask, action, True)
+#                     eval, _ = self.minimax(new_board, new_action_mask, depth-1, alpha, beta, False)
+#                     if eval > max_eval:
+#                         max_eval = eval
+#                         best_action = action
+#                     alpha = max(alpha, eval)
+#                     if beta <= alpha:
+#                         break
+#             return max_eval, best_action
+#         else:
+#             min_eval = float('inf')
+#             best_action = None
+#             for action in range(9):
+#                 if action_mask[action]:
+#                     new_board, new_action_mask = self.simulate_move(board, action_mask, action, False)
+#                     eval, _ = self.minimax(new_board, new_action_mask, depth-1, alpha, beta, True)
+#                     if eval < min_eval:
+#                         min_eval = eval
+#                         best_action = action
+#                     beta = min(beta, eval)
+#                     if beta <= alpha:
+#                         break
+#             return min_eval, best_action
         
-    def act(self):
-        board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
-        _, action = self.minimax(board, action_mask, 8, float('-inf'), float('inf'), True)  # Depth set to 3 for example
-        return action
+#     def act(self):
+#         board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
+#         _, action = self.minimax(board, action_mask, 8, float('-inf'), float('inf'), True)  # Depth set to 3 for example
+#         return action
     
     
-    def is_game_over(self, board):
-        # Check for a winner
-        for player_index in [0, 1]:
-            if self.has_player_won(board, player_index):
-                return True
+#     def is_game_over(self, board):
+#         # Check for a winner
+#         for player_index in [0, 1]:
+#             if self.has_player_won(board, player_index):
+#                 return True
 
-        # Check if the board is full (no more legal moves)
-        if not np.any(board[:, :, 0] == 0) and not np.any(board[:, :, 1] == 0):
-            return True
+#         # Check if the board is full (no more legal moves)
+#         if not np.any(board[:, :, 0] == 0) and not np.any(board[:, :, 1] == 0):
+#             return True
 
-        # Otherwise, the game is still ongoing
-        return False
+#         # Otherwise, the game is still ongoing
+#         return False
 
-    def evaluate_board(self, board):
-        # Check if the agent (maximizing player) has won
-        if self.has_player_won(board, 0):
-            return 1
-        # Check if the opponent (minimizing player) has won
-        elif self.has_player_won(board, 1):
-            return -1
-        # Otherwise, it's a draw or ongoing game
-        return 0
+#     def evaluate_board(self, board):
+#         # Check if the agent (maximizing player) has won
+#         if self.has_player_won(board, 0):
+#             return 1
+#         # Check if the opponent (minimizing player) has won
+#         elif self.has_player_won(board, 1):
+#             return -1
+#         # Otherwise, it's a draw or ongoing game
+#         return 0
 
     
-    def has_player_won(self, board, player_index):
-        # Check rows and columns for a win
-        for i in range(3):
-            if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
-                return True
+#     def has_player_won(self, board, player_index):
+#         # Check rows and columns for a win
+#         for i in range(3):
+#             if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
+#                 return True
 
-        # Check diagonals for a win
-        if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
-            return True
+#         # Check diagonals for a win
+#         if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
+#             return True
 
-        return False
+#         return False
 
-    def simulate_move(self, board, action_mask, action, is_maximizing):
-        simulated_board = np.copy(board)
-        simulated_action_mask = np.copy(action_mask)
-        player_index = 0 if is_maximizing else 1
-        row, col = action // 3, action % 3
-        simulated_board[row, col, player_index] = 1
-        simulated_action_mask[action] = 0  # Update the action mask
-        return simulated_board, simulated_action_mask
+#     def simulate_move(self, board, action_mask, action, is_maximizing):
+#         simulated_board = np.copy(board)
+#         simulated_action_mask = np.copy(action_mask)
+#         player_index = 0 if is_maximizing else 1
+#         row, col = action // 3, action % 3
+#         simulated_board[row, col, player_index] = 1
+#         simulated_action_mask[action] = 0  # Update the action mask
+#         return simulated_board, simulated_action_mask
     
 
 # class MiniMaxAgent:
@@ -277,6 +277,104 @@ class MinMaxAgent:
 #         board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
 #         _, action = self.minimax(board, action_mask, 8, float('-inf'), float('inf'), True)  # Depth set to 3 for example
 #         return action
+
+
+class MyMinAgent:
+    def __init__(self):
+        self.observation_space = None
+        self.action_space = None
+        self.current_observation = None
+
+    def reset(self):
+        self.current_observation = None
+
+    def observe(self, observation, reward, termination, truncation, info):
+        self.current_observation = observation
+        obs_message = f"Observation: {observation}"
+        return obs_message
+
+    def minimax(self, board, action_mask, depth, is_maximizing):
+        
+        # check if game is over
+        if self.is_game_over(board):
+            return self.evaluate_board(board)
+
+        if is_maximizing:
+            max_eval = float('-inf')
+            best_action = None
+            for action in range(9):
+                if action_mask[action]:
+                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, True)
+                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, False)
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_action = action
+            return max_eval, best_action
+        else:
+            min_eval = float('inf')
+            best_action = None
+            for action in range(9):
+                if action_mask[action]:
+                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, False)
+                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, True)
+                    if eval < min_eval:
+                        min_eval = eval
+                        best_action = action
+            return min_eval, best_action
+        
+    def act(self):
+        board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
+        _, action = self.minimax(board, action_mask, 8, float('-inf'), float('inf'), True)  # Depth set to 3 for example
+        return action
+    
+    
+    def is_game_over(self, board):
+        # Check for a winner
+        for player_index in [0, 1]:
+            if self.has_player_won(board, player_index):
+                return True
+
+        # Check if the board is full (no more legal moves)
+        if not np.any(board[:, :, 0] == 0) and not np.any(board[:, :, 1] == 0):
+            return True
+
+        # Otherwise, the game is still ongoing
+        return False
+
+    def evaluate_board(self, board):
+        # Check if the agent (maximizing player) has won
+        if self.has_player_won(board, 0):
+            return 1
+        # Check if the opponent (minimizing player) has won
+        elif self.has_player_won(board, 1):
+            return -1
+        # Otherwise, it's a draw or ongoing game
+        return 0
+
+    
+    def has_player_won(self, board, player_index):
+        # Check rows and columns for a win
+        for i in range(3):
+            if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
+                return True
+
+        # Check diagonals for a win
+        if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
+            return True
+
+        return False
+
+    def simulate_move(self, board, action_mask, action, is_maximizing):
+        
+        simulated_board = np.copy(board)
+        simulated_action_mask = np.copy(action_mask)
+        player_index = 0 if is_maximizing else 1
+        row, col = action // 3, action % 3
+        simulated_board[row, col, player_index] = 1
+        simulated_action_mask[action] = 0  # Update the action mask
+        return simulated_board, simulated_action_mask
+
+
 
 
 class MiniMaxAgent:
