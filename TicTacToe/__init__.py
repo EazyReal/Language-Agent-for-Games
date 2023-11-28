@@ -1,12 +1,22 @@
 from configs import EnvConfig
-from prompts.base import get_solution_prompt, simulation_code
-from tictactoe.prompt import tictactoe_starter, tictactoe_info
+from prompts.base import get_initial_agent_code_prompt, get_reflection_agent_code_prompt
 from pettingzoo.classic.tictactoe.tictactoe import env
-from pettingzoo import AECEnv
 from . import baselines, prompt
 
-prompt_get_agent_class = get_solution_prompt\
-        .replace("<simulation code>", simulation_code)\
-        .replace("<starter>", tictactoe_starter)\
-        .replace("<env info>", tictactoe_info)
-env_config = EnvConfig(prompt_get_agent_class, env)
+prompt_get_initial_agent = get_initial_agent_code_prompt\
+        .replace("<starter>", prompt.starter)\
+        .replace("<env info>", prompt.info)
+
+prompt_get_reflection_agent = get_reflection_agent_code_prompt\
+        .replace("<starter>", prompt.starter)\
+        .replace("<env info>", prompt.info)
+
+env_config = EnvConfig(
+    prompt_get_initial_agent=prompt_get_initial_agent,
+    prompt_get_reflection_agent=prompt_get_reflection_agent,
+    get_environment=env,
+    baselines={
+        "random": baselines.RandomAgent,
+        "winblock": baselines.WinBlockAgent,
+    }
+)

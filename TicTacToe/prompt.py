@@ -1,6 +1,6 @@
 from prompts.default_agent import default_starter
 
-tictactoe_info = '''
+info = '''
  
 | Import             | `from pettingzoo.classic import tictactoe_v3` |
 |--------------------|-----------------------------------------------|
@@ -54,4 +54,4 @@ If the game ends in a draw, both players will receive a reward of 0.
 '''.strip()
 
 
-tictactoe_starter = default_starter.replace('game_name_v0', 'tictactoe_v3')
+starter = default_starter.replace('game_name_v0', 'tictactoe_v3')
