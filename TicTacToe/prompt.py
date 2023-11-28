@@ -1,5 +1,4 @@
-from .default_agent import default_starter
-
+from prompts.default_agent import default_starter
 
 tictactoe_info = '''
  
