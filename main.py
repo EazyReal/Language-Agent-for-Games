@@ -52,7 +52,7 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
 #     for i in range(T):
 #         stats = run_1_experiment()
 
-
+# 'gpt-3.5-turbo'
 lm_config = LMConfig(
     gpt_model = 'gpt-3.5-turbo',
     max_tokens=1400,

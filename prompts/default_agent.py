@@ -3,6 +3,7 @@ default_starter = \
 # This is the starting point of your agent class, you should not change the existing method signatures.
 # However, you can add more methods or change the implementations to obtain a better strategy.
 class Agent:
+    import random
     # You can initialize the agent's state here
     def __init__(self, env, name):
         self.env = env
