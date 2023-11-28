@@ -52,6 +52,8 @@ class CopyLastActionAgent:
         pass
 
     def act(self) -> Optional[int]:
+        if self.last_action is None:
+            self.last_action = np.random.choice([0, 1])
         return self.last_action
 
 class CopyMajorityActionAgent:
@@ -68,7 +70,7 @@ class CopyMajorityActionAgent:
             self.actions_history.append(observation)
 
     def act(self) -> Optional[int]:
-        if len(self.actions_history) == 0:
+        if not self.actions_history:
             return np.random.choice([0, 1])  # Random choice for the first round
 
         cooperate_count = np.sum(np.array(self.actions_history) == 0)

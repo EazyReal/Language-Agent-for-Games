@@ -20,6 +20,6 @@ env_config = EnvConfig(
         "coop": baselines.AlwaysCooperateAgent,
         "betray": baselines.AlwaysBetrayAgent,
         "last": baselines.CopyLastActionAgent,
-        "majority": baselines.CopyMajorityActionAgent,
+        "major": baselines.CopyMajorityActionAgent,
     }
 )
