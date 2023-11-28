@@ -111,86 +111,61 @@ class MiniMaxAgent:
         obs_message = f"Observation: {observation}"
         return obs_message
 
-    def minimax(self, board, action_mask, depth, is_maximizing):
-        
-        # check if game is over
-        if self.is_game_over(board):
-            return self.evaluate_board(board)
-
-        if is_maximizing:
-            max_eval = float('-inf')
-            best_action = None
-            for action in range(9):
-                if action_mask[action]:
-                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, True)
-                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, False)
-                    if eval > max_eval:
-                        max_eval = eval
-                        best_action = action
-            return max_eval, best_action
-        else:
-            min_eval = float('inf')
-            best_action = None
-            for action in range(9):
-                if action_mask[action]:
-                    new_board, new_action_mask = self.simulate_move(board, action_mask, action, False)
-                    eval, _ = self.minimax(new_board, new_action_mask, depth-1, True)
-                    if eval < min_eval:
-                        min_eval = eval
-                        best_action = action
-            return min_eval, best_action
+    def minimax(self, board, player_index):
+        # return the best value for the current player, and the action to achieve it
+        if self.game_state(board, player_index) != 2:
+            return -self.game_state(board, player_index), None
+        bestv = -2
+        besta = None
+        for action in range(9):
+            if self.can_move(board, action):
+                self.do_move(board, action, player_index, 1)
+                v, _ = self.minimax(board, 1-player_index)
+                if v > bestv:
+                    bestv = v
+                    besta = action
+                self.do_move(board, action, player_index, 0)
+        return -bestv, besta
         
     def act(self):
-        board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
-        _, action = self.minimax(board, action_mask, 8, float('-inf'), float('inf'), True)  # Depth set to 3 for example
+        board = self.current_observation['observation']
+        s0 = np.sum(board[:,:,0])
+        s1 = np.sum(board[:,:,1])
+        v, action = self.minimax(board, int(s0 > s1))
+        print(f"agent {int(s0>s1)} best value is {v}")
         return action
     
+    def can_move(self, board, action):
+        row, col = action % 3, action // 3
+        return board[row, col, 0] == 0 and board[row, col, 1] == 0
     
-    def is_game_over(self, board):
-        # Check for a winner
-        for player_index in [0, 1]:
-            if self.has_player_won(board, player_index):
-                return True
-
-        # Check if the board is full (no more legal moves)
-        if not np.any(board[:, :, 0] == 0) and not np.any(board[:, :, 1] == 0):
-            return True
-
-        # Otherwise, the game is still ongoing
-        return False
-
-    def evaluate_board(self, board):
-        # Check if the agent (maximizing player) has won
-        if self.has_player_won(board, 0):
+    def do_move(self, board, action, player_index, value):
+        row, col = action % 3, action // 3
+        board[row, col, player_index] = value
+    
+    # Returns 1 if player_index has won, -1 if opponent has won, 0 if draw, 2 if game is not over
+    def game_state(self, board, player_index):
+        if self.has_player_won(board, player_index):
             return 1
-        # Check if the opponent (minimizing player) has won
-        elif self.has_player_won(board, 1):
+        elif self.has_player_won(board, 1-player_index):
             return -1
-        # Otherwise, it's a draw or ongoing game
-        return 0
+        else:
+            filled = True
+            for a in range(9):
+                if self.can_move(board, a):
+                    filled = False
+                    break
+            return 0 if filled else 2
 
-    
     def has_player_won(self, board, player_index):
         # Check rows and columns for a win
         for i in range(3):
             if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
                 return True
-
         # Check diagonals for a win
         if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
             return True
-
         return False
-
-    def simulate_move(self, board, action_mask, action, is_maximizing):
-        
-        simulated_board = np.copy(board)
-        simulated_action_mask = np.copy(action_mask)
-        player_index = 0 if is_maximizing else 1
-        row, col = action // 3, action % 3
-        simulated_board[row, col, player_index] = 1
-        simulated_action_mask[action] = 0  # Update the action mask
-        return simulated_board, simulated_action_mask
 
 
 
@@ -257,7 +232,7 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
     return rewards
 
 # Initialize environment and agents
-env = tictactoe_v3.env()
+env = tictactoe_v3.env(render_mode="human")
 agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent()}
 
 # Simulate the game

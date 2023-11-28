@@ -4,7 +4,7 @@ from rps.prompt import rps_starter, rps_info
 from pettingzoo.classic.rps.rps import env
 import rps.baselines
 
-prompt_get_agent_class = prompt_get_agent_class = get_solution_prompt\
+prompt_get_agent_class = get_solution_prompt\
         .replace("<simulation code>", simulation_code)\
         .replace("<starter>", rps_starter)\
         .replace("<env info>", rps_info)
