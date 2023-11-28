@@ -1,5 +1,5 @@
 from configs import EnvConfig
-from prompts.prompt import get_solution_prompt, simulation_code
+from prompts.base import get_solution_prompt, simulation_code
 from rps.prompt import rps_starter, rps_info
 from pettingzoo.classic.rps.rps import env
 import rps.baselines

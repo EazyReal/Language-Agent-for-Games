@@ -56,7 +56,7 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
 lm_config = LMConfig(
     gpt_model = 'gpt-3.5-turbo',
     max_tokens=1400,
-    log_path=Path('./log/v1/'),
+    log_path=Path('./log/cot_v2/'),
     log_file=Path('lm_log.txt'),
 )
 

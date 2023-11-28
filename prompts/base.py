@@ -2,7 +2,7 @@
 basic_info = '''
 You are given a task to write a game agent to interact with a pettingzoo environment.
 
-Here is the some information regarding the environment:
+The environment is defined as follows:
 <env info>
 '''.strip()
 
@@ -56,8 +56,12 @@ you can replace the starter code with your own code and add more methods if need
 but you should not change the method signatures:
 <starter>
 
-Now, given the starter code, you should write a new Agent class to interact with the environment and maximize your reward. 
-For each method, you should write comments to describe the method.
-For the act() method, you should return the action you want to take and write comments to explain why it is a good action.
-For the code part, you should enclose it by ```python and ``` and only write the Agent clase, all import need to be under the Agent scopr.
+Now, solve the task with the following steps, "the only code block you need to write is the new agent class":
+- Think step by step, recap some basic game theory knowledge and apply them to the problem.
+- Given the starter code, you should write a new Agent class to interact with the environment and maximize your reward. 
+For the code part, you should:
+- Enclose the code by ```python and ```
+- Only write the Agent class
+- `import` need to be under the Agent scope.
+- Write comments to explain your code
 '''.strip()
