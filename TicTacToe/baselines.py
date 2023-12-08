@@ -137,6 +137,8 @@ class MiniMaxAgent:
         
     def act(self):
         board = self.current_observation['observation']
+        if np.all(board == 0):
+            return 4
         v, action = self.minimax(board, 0)
         print(f"best value is {v}")
         return action
@@ -190,44 +192,40 @@ class HumanAgent:
             except ValueError:
                 print("Invalid input. Please enter a number between 0 and 8.")
 
-
-
-
-
-def simulate(agents: dict[str, any], env: AECEnv) -> dict[any, float]:
-    env.reset()
-    rewards = {agent: 0 for agent in env.possible_agents}
-    
-    for agent in agents.values():
-        agent.reset()
-
-    for agent_name in env.agent_iter():
+# test the agents if run directly
+if __name__ == "__main__":
+    def simulate(agents: dict[str, any], env: AECEnv) -> dict[any, float]:
+        env.reset()
+        rewards = {agent: 0 for agent in env.possible_agents}
         
-        observation, reward, termination, truncation, info = env.last()
-        display_board(observation['observation'], agent_name=="player_2")
-        rewards[agent_name] += reward
-        obs_message = agents[agent_name].observe(
-            observation, reward, termination, truncation, info
-        )
-        if termination or truncation:
-            action = None
-        else:
-            action = agents[agent_name].act()
-        print(f"Agen {agent_name} Action {action}")
-        
-        # Display the Visualized board
-        env.step(action)
-        # display_board(observation['observation'])
-    env.close()
-    return rewards
+        for agent in agents.values():
+            agent.reset()
 
-# Initialize environment and agents
-env = tictactoe_v3.env(render_mode="ansi")
-# player_1 is [0,1] > [::1]
-# player_2 is [1,0] > [::0]
-agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent(env, 'player_2')}
-agents = {'player_2': HumanAgent(), 'player_1': MiniMaxAgent(env, 'player_1')}
+        for agent_name in env.agent_iter():
+            
+            observation, reward, termination, truncation, info = env.last()
+            display_board(observation['observation'], agent_name=="player_2")
+            rewards[agent_name] += reward
+            obs_message = agents[agent_name].observe(
+                observation, reward, termination, truncation, info
+            )
+            if termination or truncation:
+                action = None
+            else:
+                action = agents[agent_name].act()
+            print(f"Agen {agent_name} Action {action}")
+            
+            # Display the Visualized board
+            env.step(action)
+            # display_board(observation['observation'])
+        env.close()
+        return rewards
+    env = tictactoe_v3.env(render_mode="ansi")
+    # player_1 is [0,1] > [::1]
+    # player_2 is [1,0] > [::0]
+    agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent(env, 'player_2')}
+    agents = {'player_2': HumanAgent(), 'player_1': MiniMaxAgent(env, 'player_1')}
 
-# Simulate the game
-rewards = simulate(agents, env)
-print("Final Rewards:", rewards)
+    # Simulate the game
+    rewards = simulate(agents, env)
+    print("Final Rewards:", rewards)
