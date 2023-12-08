@@ -3,14 +3,34 @@ from pettingzoo import AECEnv
 import numpy as np
 import random
 
-# 
-def display_board(board):
+# helper functions across baselines
+def display_board(board, player_index):
+    symbol = ['X', 'O']
     for row in range(3):
-        print("|".join(['X' if board[row, col, 0] == 1 else 'O' if board[row, col, 1] == 1 else ' ' for col in range(3)]))
+        def get_symbol(row, col):
+            if board[row, col, 0] == 1:
+                return symbol[player_index]
+            elif board[row, col, 1] == 1:
+                return symbol[1-player_index]
+            return " "
+        print("|".join([get_symbol(row, col) for col in range(3)]))
         if row < 2:
             print("-----")
-    print()  # Newline for better formatting
+    print()
 
+def get_winner(board):
+    # Check rows and columns for a win
+    for player_index in range(2):
+        for i in range(3):
+            if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
+                return player_index
+        # Check diagonals for a win
+        if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
+            return player_index
+    return -1
+
+def do_move(board, action, player_index, value):
+    board[action // 3, action % 3, player_index] = value
 
 class WinBlockAgent:
     def __init__(self, env, name):
@@ -28,51 +48,29 @@ class WinBlockAgent:
 
     def act(self):
         # Simple strategy: first try to win, then block, else random
-        action = self.find_winning_move()
+        action = self.find_winning_move(player_index=0)
         if action is None:
-            action = self.find_blocking_move()
+            print("searching for block")
+            action = self.find_winning_move(player_index=1)
         if action is None:
+            print("random move")
             action = self.random_move()
         return action
 
-    def find_winning_move(self):
-        return self.find_best_move(is_winning_move=True)
-
-    def find_blocking_move(self):
-        return self.find_best_move(is_winning_move=False)
-
-    def find_best_move(self, is_winning_move):
+    def find_winning_move(self, player_index):
         board, action_mask = self.current_observation['observation'], self.current_observation['action_mask']
         for action in range(9):
             if action_mask[action]:
-                simulated_board = self.simulate_move(board, action, is_winning_move)
-                if self.is_winner(simulated_board, is_winning_move):
+                do_move(board, action, player_index, 1)
+                if get_winner(board) == player_index:
                     return action
+                do_move(board, action, player_index, 0)
         return None
 
     def random_move(self):
         action_mask = self.current_observation['action_mask']
         legal_actions = [action for action in range(9) if action_mask[action]]
         return np.random.choice(legal_actions) if legal_actions else None
-
-    def simulate_move(self, board, action, is_winning_move):
-        simulated_board = np.copy(board)
-        player_index = 0 if is_winning_move else 1
-        row, col = action % 3, action // 3
-        simulated_board[row, col, player_index] = 1
-        return simulated_board
-
-    def is_winner(self, board, is_winning_move):
-        player_index = 0 if is_winning_move else 1
-        # Check rows, columns, and diagonals
-        for i in range(3):
-            if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
-                return True
-        if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2-i, player_index] == 1 for i in range(3)]):
-            return True
-        return False
-
-
 
 class RandomAgent:
     def __init__(self, env, name):
@@ -96,11 +94,16 @@ class RandomAgent:
 
 
 
-
+WIN = 1
+LOSE = -1
+TIE = 0
+CONT = 2
 
 ## Original
-class LMiniMaxAgent:
-    def __init__(self):
+class MiniMaxAgent:
+    def __init__(self, env, name):
+        self.env = env
+        self.name = name
         self.observation_space = None
         self.action_space = None
         self.current_observation = None
@@ -114,65 +117,47 @@ class LMiniMaxAgent:
         return obs_message
 
     def minimax(self, board, player_index):
-        # return the best value for the current player, and the action to achieve it
-        if self.game_state(board, player_index) != 2:
-            return -self.game_state(board, player_index), None
+        state = self.game_state(board, player_index)
+        if state != CONT:
+            return -state, None
         
-        # bestv = -1000 if player_index == 0 else 1000
-        bestv = -1000
+        bestv = -10
         besta = None
-        for action in range(9):
-            if self.can_move(board, action): 
-                self.do_move(board, action, player_index, 1)
+        for a in range(9):
+            if self.can_move(board, a): 
+                do_move(board, a, player_index, 1)
                 v, _ = self.minimax(board, 1 - player_index)
+                do_move(board, a, player_index, 0)
                 if v > bestv:
                     bestv = v
-                    besta = action
-                self.do_move(board, action, player_index, 0)
+                    besta = a
+                if v == 1:
+                    return -v, a
         return -bestv, besta
         
     def act(self):
         board = self.current_observation['observation']
-        p2 = np.sum(board[:,:,0])
-        p1 = np.sum(board[:,:,1])
-
-        v, action = self.minimax(board, int(p2>=p1)) # player_index = 0
-        print(f"agent {int(p2>p1)} best value is {v}")
+        v, action = self.minimax(board, 0)
+        print(f"best value is {v}")
         return action
     
     def can_move(self, board, action):
-        row, col = action % 3, action // 3
+        row, col = action // 3, action % 3
         return board[row, col, 0] == 0 and board[row, col, 1] == 0
-    
-    def do_move(self, board, action, player_index, value):
-        row, col = action % 3, action // 3
-        board[row, col, player_index] = value
     
     # Returns 1 if player_index has won, -1 if opponent has won, 0 if draw, 2 if game is not over
     def game_state(self, board, player_index):
-        if self.has_player_won(board, player_index):
-            return 1
-        elif self.has_player_won(board, 1-player_index):
-            return -1
+        if get_winner(board) == player_index:
+            return WIN
+        elif get_winner(board) == 1-player_index:
+            return LOSE
         else:
             filled = True
             for a in range(9):
                 if self.can_move(board, a):
                     filled = False
                     break
-            return 0 if filled else 2
-
-    def has_player_won(self, board, player_index):
-        # Check rows and columns for a win
-        for i in range(3):
-            if np.all(board[:, i, player_index] == 1) or np.all(board[i, :, player_index] == 1):
-                return True
-        # Check diagonals for a win
-        if np.all([board[i, i, player_index] == 1 for i in range(3)]) or np.all([board[i, 2 - i, player_index] == 1 for i in range(3)]):
-            return True
-        return False
-
-
+            return TIE if filled else CONT
 
 class HumanAgent:
     def __init__(self):
@@ -209,7 +194,7 @@ class HumanAgent:
 
 
 
-def simulate(agents: any, env: AECEnv) -> dict[any, float]:
+def simulate(agents: dict[str, any], env: AECEnv) -> dict[any, float]:
     env.reset()
     rewards = {agent: 0 for agent in env.possible_agents}
     
@@ -219,7 +204,7 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
     for agent_name in env.agent_iter():
         
         observation, reward, termination, truncation, info = env.last()
-        display_board(observation['observation'])
+        display_board(observation['observation'], agent_name=="player_2")
         rewards[agent_name] += reward
         obs_message = agents[agent_name].observe(
             observation, reward, termination, truncation, info
@@ -237,10 +222,11 @@ def simulate(agents: any, env: AECEnv) -> dict[any, float]:
     return rewards
 
 # Initialize environment and agents
-env = tictactoe_v3.env(render_mode="human")
+env = tictactoe_v3.env(render_mode="ansi")
 # player_1 is [0,1] > [::1]
 # player_2 is [1,0] > [::0]
-agents = {'player_1': HumanAgent(), 'player_2': LMiniMaxAgent()}
+agents = {'player_1': HumanAgent(), 'player_2': MiniMaxAgent(env, 'player_2')}
+agents = {'player_2': HumanAgent(), 'player_1': MiniMaxAgent(env, 'player_1')}
 
 # Simulate the game
 rewards = simulate(agents, env)
