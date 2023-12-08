@@ -17,6 +17,7 @@ env_config = EnvConfig(
     get_environment=env,
     baselines={
         "random": baselines.RandomAgent,
-        "winblock": baselines.WinBlockAgent,
+        "blocking": baselines.WinBlockAgent,
+        "minimax": baselines.MiniMaxAgent
     }
 )
