@@ -19,8 +19,9 @@ Tic-tac-toe is a simple turn based strategy game where 2 players, X and O, take 
  
 ### Observation Space
 The observation is a dictionary which contains an `'observation'` element which is the usual RL observation described below, and an  `'action_mask'` which holds the legal moves, described in the Legal Actions Mask section.
-
-The main observation is 2 planes of the 3x3 board. 0 is for player_1, 1 is for player_2.
+The 'observation' key corresponds to a 3 x 3 x 2 numpy array representing the board.
+For the last dimension, the current player taking the action is repsented by 0, and the other player is represented by 1.
+For example, board[1, 2, 0] = 1 means that the current player has captured in the middle right cell.
 
  
 #### Legal Actions Mask
@@ -42,4 +43,40 @@ If the game ends in a draw, both players will receive a reward of 0.
 '''.strip()
 
 
-starter = default_starter.replace('game_name_v0', 'tictactoe_v3')
+starter = \
+"""
+# This is the starting point of your agent class, you should not change the existing method signatures.
+# However, you can add more methods or change the implementations to obtain a better strategy.
+class Agent:
+    # import the necessary packages here
+    import random
+    # initialize the agent's state here
+    def __init__(self, env, name):
+        self.env = env
+        self.name = name
+        self.observation = None
+
+    # reset the agent's state here
+    def reset(self):
+        \"""
+        Reset the agent's state.
+        \"""
+        pass
+    
+    # update the agent's state here
+    # This is an example of storing the observation.
+    def observe(self, observation, reward, termination, truncation, info):
+        self.observation = observation
+    
+    # return the action here
+    # write comments to explain why this is a good policy.
+    # this is an example of choosing the action randomly, you may want to change it.
+    # self.env.action_space is a method, not a subscriptable object.
+    def act(self):
+        action = self.env.action_space(self.name).sample()
+        return action
+    
+    # this is a helper function to set a mark on the board at index "action", as player "player", with value "value"
+    def do_move(self, board, action, player, value):
+        board[action//3, action%3, player] = value
+""".strip()
