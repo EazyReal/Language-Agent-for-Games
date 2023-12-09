@@ -50,10 +50,8 @@ class WinBlockAgent:
         # Simple strategy: first try to win, then block, else random
         action = self.find_winning_move(player_index=0)
         if action is None:
-            print("searching for block")
             action = self.find_winning_move(player_index=1)
         if action is None:
-            print("random move")
             action = self.random_move()
         return action
 
@@ -140,7 +138,6 @@ class MiniMaxAgent:
         if np.all(board == 0):
             return 4
         v, action = self.minimax(board, 0)
-        print(f"best value is {v}")
         return action
     
     def can_move(self, board, action):
