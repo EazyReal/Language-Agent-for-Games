@@ -77,6 +77,7 @@ class Agent:
         return action
     
     # this is a helper function to set a mark on the board at index "action", as player "player", with value "value"
+    # `player == 0` means the mark is for the current player taking the action, `player == 1` means the other player.
     def do_move(self, board, action, player, value):
         board[action//3, action%3, player] = value
 """.strip()
